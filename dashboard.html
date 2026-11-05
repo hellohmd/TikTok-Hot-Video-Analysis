@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok 热门视频数据分析平台</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Microsoft YaHei", Arial, sans-serif;
+    background: #f3f5f9;
+    color: #263247;
+}
+
+header {
+    background: linear-gradient(120deg, #17243a, #294d70);
+    color: white;
+    padding: 30px 40px;
+}
+
+header h1 {
+    margin: 0 0 10px;
+    font-size: 27px;
+}
+
+header p {
+    margin: 0;
+    color: #d2dfed;
+}
+
+.container {
+    max-width: 1250px;
+    margin: 30px auto;
+    padding: 0 22px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.card {
+    background: white;
+    padding: 23px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #17243a0c;
+}
+
+.card p {
+    color: #778398;
+    margin: 0 0 12px;
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #245b91;
+}
+
+.panel {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #17243a0c;
+    margin-bottom: 25px;
+}
+
+.panel h2 {
+    margin-top: 0;
+}
+
+select {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px;
+    border: 1px solid #d5dce6;
+    border-radius: 8px;
+    font-size: 15px;
+    background: white;
+}
+
+.description {
+    color: #778398;
+    line-height: 1.8;
+    margin: 12px 0 22px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.chart {
+    border: 1px solid #e7ebf1;
+    border-radius: 10px;
+    padding: 14px;
+    overflow: hidden;
+}
+
+.chart h3 {
+    font-size: 15px;
+    margin: 0 0 12px;
+}
+
+.chart img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    background: #f5f6f8;
+}
+
+.chart p {
+    color: #8490a1;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+footer {
+    text-align: center;
+    color: #8993a2;
+    padding: 25px;
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery {
+        grid-template-columns: 1fr;
+    }
+
+    header {
+        padding: 25px 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>TikTok 热门视频数据分析平台</h1>
+    <p>TikTok Popular Video Data Analysis Dashboard</p>
+</header>
+
+<div class="container">
+
+    <div class="cards">
+        <div class="card">
+            <p>清洗后视频数量</p>
+            <h2>7,218</h2>
+        </div>
+
+        <div class="card">
+            <p>平均播放量</p>
+            <h2>190.9 万</h2>
+        </div>
+
+        <div class="card">
+            <p>平均互动率</p>
+            <h2>14.40%</h2>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>数据分析模块</h2>
+        <p class="description">
+            请选择你想查看的分析内容，系统会自动展示对应的分析图表。
+        </p>
+
+        <select id="analysisSelect" onchange="showAnalysis()">
+            <option value="overview">项目概览</option>
+            <option value="correlation">相关性分析</option>
+            <option value="hashtags">热门标签分析</option>
+            <option value="time">发布时间分析</option>
+            <option value="viral">高播放量视频比较</option>
+            <option value="topic">视频主题分析</option>
+        </select>
+    </div>
+
+    <div class="panel">
+        <h2 id="sectionTitle">项目概览</h2>
+        <p class="description" id="sectionDescription">
+            本项目对 7,218 条 TikTok 视频数据进行清洗、统计和可视化分析。
+        </p>
+
+        <div class="gallery" id="chartGallery"></div>
+    </div>
+
+</div>
+
+<footer>
+    TikTok Popular Video Data Analysis | Python Data Analysis Project
+</footer>
+
+<script>
+
+const analyses = {
+
+    overview: {
+        title: "项目概览",
+        description: "本项目使用 Python 对 TikTok 视频数据进行清洗、探索性分析、统计检验和回归分析。请从上方菜单选择具体分析模块查看图表。",
+        charts: []
+    },
+
+    correlation: {
+        title: "相关性分析",
+        description: "研究视频播放量与点赞、评论、分享及互动率之间的统计关联。",
+        charts: [
+            ["dy_correlation_heatmap.png", "相关性热力图"],
+            ["dy_plays_likes.png", "播放量与点赞数关系"],
+            ["dy_plays_comments.png", "播放量与评论数关系"],
+            ["dy_plays_shares.png", "播放量与分享数关系"]
+        ]
+    },
+
+    hashtags: {
+        title: "热门标签分析",
+        description: "统计视频中出现频率最高的标签，探索热门视频常见的标签特征。",
+        charts: [
+            ["dy_top20_hashtags.png", "热门标签 TOP 20"]
+        ]
+    },
+
+    time: {
+        title: "发布时间分析",
+        description: "比较不同时间段和星期发布的视频平均播放量与平均互动率。",
+        charts: [
+            ["dy_time_period_plays.png", "不同时间段平均播放量"],
+            ["dy_time_period_engagement.png", "不同时间段平均互动率"],
+            ["dy_weekday_plays.png", "不同星期平均播放量"],
+            ["dy_weekday_engagement.png", "不同星期平均互动率"]
+        ]
+    },
+
+    viral: {
+        title: "高播放量视频比较",
+        description: "比较高播放量组与普通播放量组在播放量、互动数量和互动率方面的差异。",
+        charts: [
+            ["dy_viral_plays_comparison.png", "两组视频播放量比较"],
+            ["dy_viral_engagement_comparison.png", "两组视频互动数量比较"],
+            ["dy_viral_interaction_comparison.png", "两组视频互动率比较"]
+        ]
+    },
+
+    topic: {
+        title: "视频主题分析",
+        description: "根据视频描述中的关键词进行初步主题分类，并比较不同主题的视频表现。",
+        charts: [
+            ["dy_topic_plays_comparison.png", "不同主题平均播放量"],
+            ["dy_topic_engagement_comparison.png", "不同主题平均互动率"]
+        ]
+    }
+
+};
+
+function showAnalysis() {
+
+    const selected = document.getElementById("analysisSelect").value;
+    const data = analyses[selected];
+
+    document.getElementById("sectionTitle").textContent = data.title;
+    document.getElementById("sectionDescription").textContent = data.description;
+
+    const gallery = document.getElementById("chartGallery");
+    gallery.innerHTML = "";
+
+    if (data.charts.length === 0) {
+        gallery.innerHTML =
+            "<p>请选择上方的分析模块，查看对应的图表。</p>";
+        return;
+    }
+
+    data.charts.forEach(function(chart) {
+
+        const item = document.createElement("div");
+        item.className = "chart";
+
+        const title = document.createElement("h3");
+        title.textContent = chart[1];
+
+        const img = document.createElement("img");
+        img.src = "../images/" + chart[0];
+        img.alt = chart[1];
+
+        img.onerror = function() {
+            this.alt = "图片未找到：" + chart[0];
+            this.style.display = "none";
+
+            const error = document.createElement("p");
+            error.textContent = "未找到图片，请检查 images 文件夹中的文件名。";
+            item.appendChild(error);
+        };
+
+        const filename = document.createElement("p");
+        filename.textContent = chart[0];
+
+        item.appendChild(title);
+        item.appendChild(img);
+        item.appendChild(filename);
+
+        gallery.appendChild(item);
+    });
+}
+
+showAnalysis();
+
+</script>
+
+</body>
+</html>
